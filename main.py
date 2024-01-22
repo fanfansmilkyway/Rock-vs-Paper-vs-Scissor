@@ -1,8 +1,57 @@
-# Import modules
+# Import modules(built-in)
 from tkinter import *
+import tkinter.messagebox
+import pickle
 import random
 import time
+import os
 
+gamedata = {}
+
+def gamedata_read():
+    global gamedata
+    load_file = open('gamedata.dat', 'rb')
+    gamedata = pickle.load(load_file)
+    load_file.close()
+    return gamedata
+
+def gamedata_write(data:dict):
+    save_file = open('gamedata.dat', 'wb')
+    pickle.dump(gamedata, save_file)
+    save_file.close()
+
+def gamedata_delete():
+    if tkinter.messagebox.askokcancel("Delete Anyway", "If you do this, your game data will be deleted forever. You can not undo this. Are you sure you want to delete it?"):
+        save_file = open('gamedata.dat', 'wb')
+        gamedata = {
+            'game-played': 0,
+            'rock-win': 0,
+            'paper-win': 0,
+            'scissor-win': 0
+        }
+        pickle.dump(gamedata, save_file)
+        save_file.close()
+    else:
+        return 
+
+if os.path.exists('gamedata.dat'):
+    gamedata_read()
+    print(gamedata)
+
+else:
+    save_file = open('gamedata.dat', 'wb+')
+    gamedata = {
+        'game-played': 0,
+        'rock-win': 0,
+        'paper-win': 0,
+        'scissor-win': 0
+    }
+    pickle.dump(gamedata, save_file)
+    save_file.close()
+
+base_dir = os.path.dirname(__file__)
+
+# Not built-in(Need to install)
 import matplotlib.pyplot as plt
 
 GAMING = True
@@ -15,7 +64,6 @@ class Game:
         self.tk = tk
         self.tk.title("Rock vs Paper vs Scissor(BETA1.1)")
         self.canvas = Canvas(tk, width=1200, height=850, background='grey')
-        self.canvas.title()
         self.canvas.pack()
 
 # Initialize three 'competitors'
@@ -25,7 +73,8 @@ class Rock:
         self.x = x
         self.y = y
         self.pos = [self.x, self.y]
-        self.images = PhotoImage(file='images/rock.png') # Image size 55px*55px
+        file_path = os.path.join(base_dir, './rock.png')
+        self.images = PhotoImage(file=file_path) # Image size 55px*55px
         self.image = self.canvas.create_image(self.x, self.y, anchor='nw', image=self.images)
         # Get random speed
         self.speed = random.uniform(0.5, 4)
@@ -67,7 +116,8 @@ class Paper:
         self.x = x
         self.y = y
         self.pos = [self.x, self.y]
-        self.images = PhotoImage(file='images/paper.png')
+        file_path = os.path.join(base_dir, './paper.png')
+        self.images = PhotoImage(file=file_path)
         self.image = self.canvas.create_image(self.x, self.y, anchor='nw', image=self.images)
         self.speed = random.uniform(0.5, 4)
         self.x = random.uniform(-4, 4)
@@ -106,7 +156,8 @@ class Scissor:
         self.x = x
         self.y = y
         self.pos = [self.x, self.y]
-        self.images = PhotoImage(file='images/scissor.png')
+        file_path = os.path.join(base_dir, './scissor.png')
+        self.images = PhotoImage(file=file_path)
         self.image = self.canvas.create_image(self.x, self.y, anchor='nw', image=self.images)
         self.speed = random.uniform(0.5, 4)
         self.x = random.uniform(-4, 4)
@@ -175,10 +226,19 @@ def update_scoreboard(rocks_score:int, papers_score:int, scissors_score:int):
         pass
     else:
         if scoreboards.index(winner) == 0:
+            gamedata['game-played'] += 1
+            gamedata['rock-win'] += 1
+            gamedata_write(gamedata)
             winner_team = "Rock"
         if scoreboards.index(winner) == 1:
+            gamedata['game-played'] += 1
+            gamedata['paper-win'] += 1
+            gamedata_write(gamedata)
             winner_team = "Paper"
         if scoreboards.index(winner) == 2:
+            gamedata['game-played'] += 1
+            gamedata['scissor-win'] += 1
+            gamedata_write(gamedata)
             winner_team = "Scissor"
         current_status = winner["text"]
         text, previous_score = current_status.split(":")
@@ -209,25 +269,27 @@ def statistic():
     time_list = []
     a = 0
     time_increment = time_game / len(rock_number)
-    print(time_game)
     for i in range(len(rock_number)):
         a += time_increment
         time_list.append(a)
-    print(len(rock_number))
-    plt.plot(time_list ,rock_number, 'r')
-    plt.plot(time_list, paper_number, 'b')
-    plt.plot(time_list, scissor_number, 'g')
+    labels = ['Rock', 'Paper', 'Scissor']
+    plt.figure()
+    plt.stackplot(time_list, rock_number, paper_number, scissor_number, baseline='zero', labels=labels, colors=['red','green','blue'])
     plt.ylim(0, 60)
-    plt.title("Rock vs Paper vs Scissor({0} Wins)\nRed:Rock, Blue:Paper, Green:Scissor".format(winner_team))
+    plt.title("Rock vs Paper vs Scissor({0} Wins)\nRed:Rock, Green:Paper, Blue:Scissor".format(winner_team))
     plt.xlabel("Time(s)")
     plt.ylabel("Survival Number")
+    plt.legend(loc="upper left")
     plt.show()
 
 def restart_game():
-    global rocks, papers, scissors, GAMING, restart_button, statistic_button, rock_number, paper_number, scissor_number
+    global rocks, papers, scissors, GAMING, restart_button, statistic_button, rock_number, paper_number, scissor_number, time_start
     time_start = time.time()
-    restart_button.destroy()
-    statistic_button.destroy()
+    try:
+        restart_button.destroy()
+        statistic_button.destroy()
+    except:
+        pass
     rock_number = []
     paper_number = []
     scissor_number = []
@@ -236,6 +298,54 @@ def restart_game():
     scissors = [Scissor(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50)) for i in range(20)]
     GAMING = True
 
+restart_image = os.path.join(base_dir, './restart.png')
+restart_image = PhotoImage(file=restart_image)
+force_restart_button = Button(tk, text="Restart", image=restart_image, command=restart_game)
+force_restart_button.place(x=0, y=60)
+
+def settings():
+    global rocks, papers, scissors, restart_button, statistic_button, GAMING, settings_button
+    settings_button.config(state="disabled")
+    rocks.clear()
+    papers.clear()
+    scissors.clear()
+    try:
+        restart_button.destroy()
+        statistic_button.destroy()
+    except:
+        pass
+    canvas.delete('all')
+    current_gamedata = gamedata_read()
+    settings_window = Toplevel(tk)
+    settings_window.title("Gaming History")
+    settings_window.protocol("WM_DELETE_WINDOW", lambda:[settings_button.config(state="normal"), settings_window.destroy()])
+    label = Label(settings_window, text="This is your 'Rock vs Paper cs Scissor' Gaming History.")
+    label.pack()
+    label1 = Label(settings_window, text='Games Played: {0}'.format(current_gamedata["game-played"]))
+    label1.pack()
+    if current_gamedata["game-played"] != 0:
+        label2 = Label(settings_window, text="Times of Rock won: {0}({1}%)".format(current_gamedata["rock-win"], current_gamedata["rock-win"]/current_gamedata["game-played"]*100))
+        label2.pack()
+        label3 = Label(settings_window, text="Times of Paper won: {0}({1}%)".format(current_gamedata["paper-win"], current_gamedata["paper-win"]/current_gamedata["game-played"]*100))
+        label3.pack()
+        label4 = Label(settings_window, text="Times of Scissor won: {0}({1}%)".format(current_gamedata["scissor-win"], current_gamedata["scissor-win"]/current_gamedata["game-played"]*100))
+        label4.pack()
+    if current_gamedata["game-played"] == 0:
+        label2 = Label(settings_window, text="Times of Rock won: 0")
+        label2.pack()
+        label3 = Label(settings_window, text="Times of Paper won: 0")
+        label3.pack()
+        label4 = Label(settings_window, text="Times of Scissor won: 0")
+        label4.pack()
+    delete_data_button = Button(settings_window, text="Delete your game data", command=gamedata_delete)
+    delete_data_button.pack()
+
+settings_image = os.path.join(base_dir, './settings.png')
+settings_image = PhotoImage(file=settings_image)
+settings_button = Button(tk, text="Settings", image=settings_image, command=settings)
+settings_button.place(rely=1.0, relx=0, x=0, y=0, anchor=SW)
+
+# For the statistic
 rock_number = []
 paper_number = []
 scissor_number = []
@@ -256,7 +366,6 @@ while True:
         rock_number.append(len(rocks))
         paper_number.append(len(papers))
         scissor_number.append(len(scissors))
-        update_scoreboard(len(rocks), len(papers), len(scissors))
+    update_scoreboard(len(rocks), len(papers), len(scissors))
     tk.update_idletasks()
     tk.update()
-    time.sleep(0.01)
