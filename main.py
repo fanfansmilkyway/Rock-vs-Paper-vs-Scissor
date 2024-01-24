@@ -1,6 +1,8 @@
 # Import modules(built-in)
 from tkinter import *
 import tkinter.messagebox
+import tkinter.filedialog
+import shutil
 import pickle
 import random
 import time
@@ -8,6 +10,12 @@ import os
 
 # Not built-in(Need to install)
 import matplotlib.pyplot as plt
+from PIL import Image as PImage
+
+try:
+    os.mkdir('costom_image') # Error if folder exists
+except:
+    pass
 
 gamedata = {}
 
@@ -61,6 +69,8 @@ def seconds_to_hms(seconds):
 base_dir = os.path.dirname(__file__)
 
 GAMING = True
+USE_DEFAULT_IMAGE = True
+USE_DEFAULT_IMAGE_ = True
 time_start = time.time()
 
 # Initialize Game
@@ -68,7 +78,7 @@ class Game:
     def __init__(self):
         tk = Tk()
         self.tk = tk
-        self.tk.title("Rock vs Paper vs Scissor(BETA1.1)")
+        self.tk.title("Rock vs Paper vs Scissor(BETA2.2)")
         self.canvas = Canvas(tk, width=1200, height=850, background='grey')
         self.canvas.pack()
 
@@ -79,7 +89,10 @@ class Rock:
         self.x = x
         self.y = y
         self.pos = [self.x, self.y]
-        file_path = os.path.join(base_dir, './rock.png')
+        if USE_DEFAULT_IMAGE_ == True:
+            file_path = os.path.join(base_dir, './rock.png')
+        if USE_DEFAULT_IMAGE_ == False:
+            file_path = os.path.join(base_dir, './costom_image/rock.png')
         self.images = PhotoImage(file=file_path) # Image size 55px*55px
         self.image = self.canvas.create_image(self.x, self.y, anchor='nw', image=self.images)
         # Get random speed
@@ -121,7 +134,10 @@ class Paper:
         self.x = x
         self.y = y
         self.pos = [self.x, self.y]
-        file_path = os.path.join(base_dir, './paper.png')
+        if USE_DEFAULT_IMAGE_ == True:
+            file_path = os.path.join(base_dir, './paper.png')
+        if USE_DEFAULT_IMAGE_ == False:
+            file_path = os.path.join(base_dir, './costom_image/paper.png')
         self.images = PhotoImage(file=file_path)
         self.image = self.canvas.create_image(self.x, self.y, anchor='nw', image=self.images)
         self.speed = speed
@@ -161,7 +177,10 @@ class Scissor:
         self.x = x
         self.y = y
         self.pos = [self.x, self.y]
-        file_path = os.path.join(base_dir, './scissor.png')
+        if USE_DEFAULT_IMAGE_ == True:
+            file_path = os.path.join(base_dir, './scissor.png')
+        if USE_DEFAULT_IMAGE_ == False:
+            file_path = os.path.join(base_dir, './costom_image/scissor.png')
         self.images = PhotoImage(file=file_path)
         self.image = self.canvas.create_image(self.x, self.y, anchor='nw', image=self.images)
         self.speed = speed
@@ -256,7 +275,8 @@ statistic_button = None
 time_game = 0
 
 def game_over():
-    global GAMING, restart_button, time_game, statistic_button
+    global GAMING, restart_button, time_game, statistic_button, USE_DEFAULT_IMAGE, USE_DEFAULT_IMAGE_
+    USE_DEFAULT_IMAGE_ = USE_DEFAULT_IMAGE
     time_end = time.time()
     time_game = time_end-time_start
     gamedata['play-time'] += time_game
@@ -290,7 +310,8 @@ def statistic():
     plt.show()
 
 def restart_game():
-    global rocks, papers, scissors, GAMING, restart_button, statistic_button, rock_number, paper_number, scissor_number, time_start
+    global rocks, papers, scissors, GAMING, restart_button, statistic_button, rock_number, paper_number, scissor_number, time_start, USE_DEFAULT_IMAGE_, USE_DEFAULT_IMAGE
+    USE_DEFAULT_IMAGE_ = USE_DEFAULT_IMAGE
     time_start = time.time()
     try:
         restart_button.destroy()
@@ -340,10 +361,91 @@ def history():
     delete_data_button = Button(history_window, text="Delete your game data", command=gamedata_delete)
     delete_data_button.pack()
 
+def settings():
+    global USE_DEFAULT_IMAGE
+    def rock_change_file():
+        rock_filename = tkinter.filedialog.askopenfilename()
+        rock_dst_filename = "costom_image/rock.png"
+        shutil.copyfile(rock_filename, rock_dst_filename)
+        img = PImage.open(rock_dst_filename)
+        new_img = img.resize((55,55))
+        new_img.save(rock_dst_filename)
+    def paper_change_file():
+        paper_filename = tkinter.filedialog.askopenfilename()
+        paper_dst_filename = "costom_image/paper.png"
+        shutil.copyfile(paper_filename, paper_dst_filename)
+        img = PImage.open(paper_dst_filename)
+        new_img = img.resize((55,55))
+        new_img.save(paper_dst_filename)
+    def scissor_change_file():
+        scissor_filename = tkinter.filedialog.askopenfilename()
+        scissor_dst_filename = "costom_image/scissor.png"
+        shutil.copyfile(scissor_filename, scissor_dst_filename)
+        img = PImage.open(scissor_dst_filename)
+        new_img = img.resize((55,55))
+        new_img.save(scissor_dst_filename)
+    def use_default_image():
+        global USE_DEFAULT_IMAGE
+        USE_DEFAULT_IMAGE = True
+    def use_costom_image():
+        global USE_DEFAULT_IMAGE
+        USE_DEFAULT_IMAGE = False
+    settings_button.config(state="disabled")
+    settings_window = Toplevel(tk)
+    settings_window.title("Settings")
+    settings_window.protocol("WM_DELETE_WINDOW", lambda:[settings_button.config(state="normal"), settings_window.destroy()])
+    label1 = Label(settings_window, text="Set costomized 'Rock', 'Paper', 'Scissor' images\n(Images will be resized)")
+    label1.pack()
+    button1 = Button(settings_window, text="Rock File", command=rock_change_file)
+    button1.pack()
+    button2 = Button(settings_window, text="Paper File", command=paper_change_file)
+    button2.pack()
+    button3 = Button(settings_window, text="Scissor File", command=scissor_change_file)
+    button3.pack()
+    button4 = Button(settings_window, text="Use Default Images", command=use_default_image)
+    button4.pack()
+    button5 = Button(settings_window, text="Use Costom Images", command=use_costom_image)
+    button5.pack()
+    label2_0 = Label(settings_window, text="Preview(Rock, Paper, Scissor)")
+    label2_0.pack()
+    # Preview
+    if USE_DEFAULT_IMAGE == True:
+        label2_image = PhotoImage(file='rock.png') 
+    if USE_DEFAULT_IMAGE == False:
+        label2_image = PhotoImage(file='costom_image/rock.png') 
+    label2 = Label(settings_window, image=label2_image)
+    label2.pack(side=LEFT)
+    label2.image = label2_image
+
+    if USE_DEFAULT_IMAGE == True:
+        label3_image = PhotoImage(file='paper.png') 
+    if USE_DEFAULT_IMAGE == False:
+        label3_image = PhotoImage(file='costom_image/paper.png') 
+    label3 = Label(settings_window, image=label3_image)
+    label3.pack(side=LEFT)
+    label3.image = label3_image
+
+    if USE_DEFAULT_IMAGE == True:
+        label4_image = PhotoImage(file='scissor.png') 
+    if USE_DEFAULT_IMAGE == False:
+        label4_image = PhotoImage(file='costom_image/scissor.png') 
+    label4 = Label(settings_window, image=label4_image)
+    label4.pack(side=LEFT)
+    label4.image = label4_image
+
+# Bottom Left corner
+bl_frame = Frame(tk)
+bl_frame.place(rely=1.0, relx=0, x=0, y=0, anchor=SW)
+
 history_image = os.path.join(base_dir, './history.png')
 history_image = PhotoImage(file=history_image)
 history_button = Button(tk, text="Gaming History", image=history_image, command=history)
-history_button.place(rely=1.0, relx=0, x=0, y=0, anchor=SW)
+#history_button.place(rely=1.0, relx=0, x=0, y=0, anchor=SW)
+history_button.pack(in_=bl_frame, side=BOTTOM)
+settings_image = os.path.join(base_dir, './settings.png')
+settings_image = PhotoImage(file=settings_image)
+settings_button = Button(tk, text="Gaming History", image=settings_image, command=settings)
+settings_button.pack(in_=bl_frame, side=BOTTOM)
 
 # For the statistic
 rock_number = []
