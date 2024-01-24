@@ -343,11 +343,11 @@ def history():
     label1 = Label(history_window, text='Games Played: {0}'.format(current_gamedata["game-played"]))
     label1.pack()
     if current_gamedata["game-played"] != 0:
-        label2 = Label(history_window, text="Times of Rock won: {0}({1}%)".format(current_gamedata["rock-win"], current_gamedata["rock-win"]/current_gamedata["game-played"]*100))
+        label2 = Label(history_window, text="Times of Rock won: {0}({1}%)".format(current_gamedata["rock-win"], round(current_gamedata["rock-win"]/current_gamedata["game-played"]*100,2)))
         label2.pack()
-        label3 = Label(history_window, text="Times of Paper won: {0}({1}%)".format(current_gamedata["paper-win"], current_gamedata["paper-win"]/current_gamedata["game-played"]*100))
+        label3 = Label(history_window, text="Times of Paper won: {0}({1}%)".format(current_gamedata["paper-win"], round(current_gamedata["paper-win"]/current_gamedata["game-played"]*100,2)))
         label3.pack()
-        label4 = Label(history_window, text="Times of Scissor won: {0}({1}%)".format(current_gamedata["scissor-win"], current_gamedata["scissor-win"]/current_gamedata["game-played"]*100))
+        label4 = Label(history_window, text="Times of Scissor won: {0}({1}%)".format(current_gamedata["scissor-win"], round(current_gamedata["scissor-win"]/current_gamedata["game-played"]*100,2)))
         label4.pack()
     if current_gamedata["game-played"] == 0:
         label2 = Label(history_window, text="Times of Rock won: 0")
@@ -410,25 +410,28 @@ def settings():
     label2_0.pack()
     # Preview
     if USE_DEFAULT_IMAGE == True:
-        label2_image = PhotoImage(file='rock.png') 
+        label2_image = os.path.join(base_dir, 'rock.png')
     if USE_DEFAULT_IMAGE == False:
-        label2_image = PhotoImage(file='costom_image/rock.png') 
+        label2_image = os.path.join(base_dir, 'costom_image/rock.png')
+    label2_image = PhotoImage(file=label2_image) 
     label2 = Label(settings_window, image=label2_image)
     label2.pack(side=LEFT)
     label2.image = label2_image
 
     if USE_DEFAULT_IMAGE == True:
-        label3_image = PhotoImage(file='paper.png') 
+        label3_image = os.path.join(base_dir, 'paper.png')
     if USE_DEFAULT_IMAGE == False:
-        label3_image = PhotoImage(file='costom_image/paper.png') 
+        label3_image = os.path.join(base_dir, 'costom_image/paper.png')
+    label3_image = PhotoImage(file=label3_image) 
     label3 = Label(settings_window, image=label3_image)
     label3.pack(side=LEFT)
     label3.image = label3_image
 
     if USE_DEFAULT_IMAGE == True:
-        label4_image = PhotoImage(file='scissor.png') 
+        label4_image = os.path.join(base_dir, 'scissor.png')
     if USE_DEFAULT_IMAGE == False:
-        label4_image = PhotoImage(file='costom_image/scissor.png') 
+        label4_image = os.path.join(base_dir, 'costom_image/scissor.png')
+    label4_image = PhotoImage(file=label4_image) 
     label4 = Label(settings_window, image=label4_image)
     label4.pack(side=LEFT)
     label4.image = label4_image
