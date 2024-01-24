@@ -6,6 +6,9 @@ import random
 import time
 import os
 
+# Not built-in(Need to install)
+import matplotlib.pyplot as plt
+
 gamedata = {}
 
 def gamedata_read():
@@ -15,7 +18,7 @@ def gamedata_read():
     load_file.close()
     return gamedata
 
-def gamedata_write(data:dict):
+def gamedata_write():
     save_file = open('gamedata.dat', 'wb')
     pickle.dump(gamedata, save_file)
     save_file.close()
@@ -27,7 +30,8 @@ def gamedata_delete():
             'game-played': 0,
             'rock-win': 0,
             'paper-win': 0,
-            'scissor-win': 0
+            'scissor-win': 0,
+            'play-time': 0
         }
         pickle.dump(gamedata, save_file)
         save_file.close()
@@ -43,15 +47,18 @@ else:
         'game-played': 0,
         'rock-win': 0,
         'paper-win': 0,
-        'scissor-win': 0
+        'scissor-win': 0,
+        'play-time': 0
     }
     pickle.dump(gamedata, save_file)
     save_file.close()
 
-base_dir = os.path.dirname(__file__)
+def seconds_to_hms(seconds):
+    hours, remainder = divmod(seconds, 3600)
+    minutes, seconds = divmod(remainder, 60)
+    return "{0}h {1}m {2}s".format(hours, minutes, seconds)
 
-# Not built-in(Need to install)
-import matplotlib.pyplot as plt
+base_dir = os.path.dirname(__file__)
 
 GAMING = True
 time_start = time.time()
@@ -226,17 +233,17 @@ def update_scoreboard(rocks_score:int, papers_score:int, scissors_score:int):
         if scoreboards.index(winner) == 0:
             gamedata['game-played'] += 1
             gamedata['rock-win'] += 1
-            gamedata_write(gamedata)
+            gamedata_write()
             winner_team = "Rock"
         if scoreboards.index(winner) == 1:
             gamedata['game-played'] += 1
             gamedata['paper-win'] += 1
-            gamedata_write(gamedata)
+            gamedata_write()
             winner_team = "Paper"
         if scoreboards.index(winner) == 2:
             gamedata['game-played'] += 1
             gamedata['scissor-win'] += 1
-            gamedata_write(gamedata)
+            gamedata_write()
             winner_team = "Scissor"
         current_status = winner["text"]
         text, previous_score = current_status.split(":")
@@ -252,6 +259,8 @@ def game_over():
     global GAMING, restart_button, time_game, statistic_button
     time_end = time.time()
     time_game = time_end-time_start
+    gamedata['play-time'] += time_game
+    gamedata_write()
     time.sleep(1)
     GAMING = False
     rocks.clear()
@@ -301,47 +310,40 @@ restart_image = PhotoImage(file=restart_image)
 force_restart_button = Button(tk, text="Restart", image=restart_image, command=restart_game)
 force_restart_button.place(x=0, y=60)
 
-def settings():
-    global rocks, papers, scissors, restart_button, statistic_button, GAMING, settings_button
-    settings_button.config(state="disabled")
-    rocks.clear()
-    papers.clear()
-    scissors.clear()
-    try:
-        restart_button.destroy()
-        statistic_button.destroy()
-    except:
-        pass
-    canvas.delete('all')
+def history():
+    global GAMING, history_button
+    history_button.config(state="disabled")
     current_gamedata = gamedata_read()
-    settings_window = Toplevel(tk)
-    settings_window.title("Gaming History")
-    settings_window.protocol("WM_DELETE_WINDOW", lambda:[settings_button.config(state="normal"), settings_window.destroy()])
-    label = Label(settings_window, text="This is your 'Rock vs Paper vs Scissor' Gaming History.")
+    history_window = Toplevel(tk)
+    history_window.title("Gaming History")
+    history_window.protocol("WM_DELETE_WINDOW", lambda:[history_button.config(state="normal"), history_window.destroy()])
+    label = Label(history_window, text="This is your 'Rock vs Paper vs Scissor' Gaming History.")
     label.pack()
-    label1 = Label(settings_window, text='Games Played: {0}'.format(current_gamedata["game-played"]))
+    label1 = Label(history_window, text='Games Played: {0}'.format(current_gamedata["game-played"]))
     label1.pack()
     if current_gamedata["game-played"] != 0:
-        label2 = Label(settings_window, text="Times of Rock won: {0}({1}%)".format(current_gamedata["rock-win"], current_gamedata["rock-win"]/current_gamedata["game-played"]*100))
+        label2 = Label(history_window, text="Times of Rock won: {0}({1}%)".format(current_gamedata["rock-win"], current_gamedata["rock-win"]/current_gamedata["game-played"]*100))
         label2.pack()
-        label3 = Label(settings_window, text="Times of Paper won: {0}({1}%)".format(current_gamedata["paper-win"], current_gamedata["paper-win"]/current_gamedata["game-played"]*100))
+        label3 = Label(history_window, text="Times of Paper won: {0}({1}%)".format(current_gamedata["paper-win"], current_gamedata["paper-win"]/current_gamedata["game-played"]*100))
         label3.pack()
-        label4 = Label(settings_window, text="Times of Scissor won: {0}({1}%)".format(current_gamedata["scissor-win"], current_gamedata["scissor-win"]/current_gamedata["game-played"]*100))
+        label4 = Label(history_window, text="Times of Scissor won: {0}({1}%)".format(current_gamedata["scissor-win"], current_gamedata["scissor-win"]/current_gamedata["game-played"]*100))
         label4.pack()
     if current_gamedata["game-played"] == 0:
-        label2 = Label(settings_window, text="Times of Rock won: 0")
+        label2 = Label(history_window, text="Times of Rock won: 0")
         label2.pack()
-        label3 = Label(settings_window, text="Times of Paper won: 0")
+        label3 = Label(history_window, text="Times of Paper won: 0")
         label3.pack()
-        label4 = Label(settings_window, text="Times of Scissor won: 0")
+        label4 = Label(history_window, text="Times of Scissor won: 0")
         label4.pack()
-    delete_data_button = Button(settings_window, text="Delete your game data", command=gamedata_delete)
+    label5 = Label(history_window, text="Play time: {0}".format(seconds_to_hms(round(current_gamedata["play-time"]))))
+    label5.pack()
+    delete_data_button = Button(history_window, text="Delete your game data", command=gamedata_delete)
     delete_data_button.pack()
 
-settings_image = os.path.join(base_dir, './settings.png')
-settings_image = PhotoImage(file=settings_image)
-settings_button = Button(tk, text="Settings", image=settings_image, command=settings)
-settings_button.place(rely=1.0, relx=0, x=0, y=0, anchor=SW)
+history_image = os.path.join(base_dir, './history.png')
+history_image = PhotoImage(file=history_image)
+history_button = Button(tk, text="Gaming History", image=history_image, command=history)
+history_button.place(rely=1.0, relx=0, x=0, y=0, anchor=SW)
 
 # For the statistic
 rock_number = []
