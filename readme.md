@@ -1,15 +1,29 @@
 # Rock vs Paper vs Scissor
-This is a game which simulates the Rock vs Paper vs Scissor. But we don't really play it(We don't randomly choose:joy:).    
+This is a game which simulates the Rock vs Paper vs Scissor. But we don't really play it(We don't randomly choose).    
 
 Instead, we put rocks, papers, scissors on the canvas and let them fight with each other.
 
 Unfortunately, I am not good at AI technology so actually they just randomly move in straight line, and bounce if they hit the wall. When they "fight"(it means one touches another), for example, if a rock meets a paper, the rock dies, but paper are still alive, and a new paper will be born. Very simple, right?  
 
-This game is written by Python using tkinter, matplotlib modules. Notice that the following tutorial is for BETA2.2!
+This game is written by Python using tkinter, matplotlib modules. Notice that the following tutorial is for BETA3.0!
+
+## Requirements
+Before you start the game, check if you have already installed these python libraries:
+```
+    matplotlib
+    Pillow
+```
+If not, use the following commands to install them:
+```
+    pip install matplotlib
+    pip install Pillow
+```
 
 ## Tutorial
 ### Basic
-When you run the py file, a tkinter window should be shown on your screen. If not or error happens, please check if you have correctly installed matplotlib & Pillow.  There should be 45 objects running on the canvas, a few buttons and 3 scoreboards. If these run properly, congratulations, you succeed!  
+When you run the .py file, a tkinter window should be shown on your screen. If not or error happens, please check if you have correctly installed matplotlib & Pillow. There should be many objects running on the canvas, a few buttons and 3 scoreboards. If these run properly, congratulations, you succeed!  
+
+Note: If you find that the objects move too fast, it's because we use different computers. I will try to fix this in the future
 
 When a team is extinct, they "game over". If two teams "game over", the third will win the game. Only one team is the winner. Now you can press "Restart" button to start another new game.  
 
@@ -24,9 +38,16 @@ At the bottom-left corner, there are two 'advanced' buttons: "Gaming History"(a 
 If you press it, a new window will appear. It shows your gaming History, including 'games played','Times of rock wins'...... You can also delete your gaming history. Please think carefully before you do this, because the data will be deleted forever, you will never find it back.
 
 ### Settings(_Advanced_)
-(It should be Setting not Settings, for you only can set one thing:joy:).  
+(It should be Setting not Settings, for you only can set one thing).  
 This is interesting especially for people who are bored with the default rock,paper,scissor images: set customized image.
 
-If you press the "Setting" button, a (again) new window with buttons will appear. Next press 'Rock image file' button, choose your costom rock image(support most picture extension such as .png .jpg .jpeg...). Then set the other two in the same way. Finally press 'Use costomized images', start a new game. Well done! Now your favourite animated characters are fighting!!
+If you press the "Setting" button, a (again) new window with buttons will appear. Next press 'Rock image file' button, choose your costom rock image(support most picture extension such as .png .jpg .jpeg .webp ...). Then set the other two in the same way. Finally press 'Use costomized images', start a new game. Well done! Now your favourite animated characters are fighting!!
 
-It is better to upload square images, because your images will be resized to 55px*55px by the program. You don't want to your favourite character become very fat or very thin, right?:joy:
+It is better to upload square images, because your images will be resized to 55px*55px by the program. You don't want to your favourite character become very fat or very thin, right?
+
+### Game controlled by you(_Advaced_)(_BETA_)
+This new feature is added in version _BETA3.0_. And it is in developing stage so perhaps there are many bugs in it.
+
+If you press the "Controller" button at the bottom-right corner, a new window will be created. Press "Start a new game that you control" button to start a game in this mode. In this mode, you will join one of the teams(Rock or Paper or Scissor). Use '_wasd_' to control your character. Eat your preys and run away from your natural enemy. Costomized images can also be used in this mode(Ready to become your favourite animated character?).
+
+I hope this tutorial will help you!

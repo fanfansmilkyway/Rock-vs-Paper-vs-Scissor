@@ -11,6 +11,7 @@ import os
 # Not built-in(Need to install)
 import matplotlib.pyplot as plt
 from PIL import Image as PImage
+from PIL import ImageOps, ImageTk
 
 try:
     os.mkdir('costom_image') # Error if folder exists
@@ -18,6 +19,7 @@ except:
     pass
 
 gamedata = {}
+player = None
 
 def gamedata_read():
     global gamedata
@@ -71,6 +73,7 @@ base_dir = os.path.dirname(__file__)
 GAMING = True
 USE_DEFAULT_IMAGE = True
 USE_DEFAULT_IMAGE_ = True
+
 time_start = time.time()
 
 # Initialize Game
@@ -78,7 +81,7 @@ class Game:
     def __init__(self):
         tk = Tk()
         self.tk = tk
-        self.tk.title("Rock vs Paper vs Scissor(BETA2.2)")
+        self.tk.title("Rock vs Paper vs Scissor(BETA3.0)")
         self.canvas = Canvas(tk, width=1200, height=850, background='grey')
         self.canvas.pack()
 
@@ -214,10 +217,168 @@ class Scissor:
                     del(self)
                     return 0
 
+# TODO Make a controlable(by player) competitor
+class Player:
+    def __init__(self, canvas):
+        self.x = random.randint(50, canvas.winfo_reqwidth()-200)
+        self.y = random.randint(50, canvas.winfo_reqheight()-200)
+        self.pos = [self.x, self.y]
+        self.type = random.choice(['Rock','Paper','Scissor'])
+        self.canvas = canvas
+        if self.type == 'Rock':
+            rocks.append(self)
+            if USE_DEFAULT_IMAGE_ == False:
+                file_path = os.path.join(base_dir, './costom_image/rock.png')
+            if USE_DEFAULT_IMAGE_ == True:
+                file_path = os.path.join(base_dir, './rock.png')
+        if self.type == 'Paper':
+            papers.append(self)
+            if USE_DEFAULT_IMAGE_ == False:
+                file_path = os.path.join(base_dir, './costom_image/paper.png')
+            if USE_DEFAULT_IMAGE_ == True:
+                file_path = os.path.join(base_dir, './paper.png')
+        if self.type == 'Scissor':
+            scissors.append(self)
+            if USE_DEFAULT_IMAGE_ == False:
+                file_path = os.path.join(base_dir, './costom_image/scissor.png')
+            if USE_DEFAULT_IMAGE_ == True:
+                file_path = os.path.join(base_dir, './scissor.png')
+        self.pilimage = PImage.open(file_path)
+        self.pilimage = ImageOps.expand(self.pilimage, border=2, fill='red')
+        self.images = ImageTk.PhotoImage(self.pilimage)
+        self.image = self.canvas.create_image(self.x, self.y, anchor='nw', image=self.images)
+        self.canvas.bind_all('<KeyPress-w>', self.up)
+        self.canvas.bind_all('<KeyPress-s>', self.down)
+        self.canvas.bind_all('<KeyPress-a>', self.left)
+        self.canvas.bind_all('<KeyPress-d>', self.right)
+        self.x = 0
+        self.y = 0
+
+    def fight(self):
+        if self.type == 'Rock':
+            papers_pos = []
+            for a in papers:
+                papers_pos.append(a.pos)
+            
+            for pos_x, pos_y in papers_pos: # Rock versus Paper = Die
+                # Detect if it touches its component
+                if self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
+                or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
+                or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
+                or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
+                    papers.append(Paper(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                    rocks.remove(self) # Die
+                    del(self)
+                    return 0
+        if self.type == 'Paper':
+            scissors_pos = []
+            for a in scissors:
+                scissors_pos.append(a.pos)
+            
+            for pos_x, pos_y in scissors_pos: # Die
+                if self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
+                    or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
+                    or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
+                    or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
+                        scissors.append(Scissor(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                        papers.remove(self)
+                        del(self)
+                        return 0
+        if self.type == 'Scissor':
+            rocks_pos = []
+            for a in rocks:
+                rocks_pos.append(a.pos)
+            
+            for pos_x, pos_y in rocks_pos: # Die
+                if self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
+                    or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
+                    or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
+                    or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
+                        rocks.append(Rock(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                        scissors.remove(self)
+                        del(self)
+                        return 0 
+
+    def draw(self):
+        self.canvas.move(self.image, self.x, self.y)
+        self.pos = self.canvas.coords(self.image)
+        if self.pos[0] <= 0:
+            self.x = 0
+            self.y = 0
+        if self.pos[1] <= 0:
+            self.x = 0
+            self.y = 0
+        if self.pos[0] + 55 >= self.canvas.winfo_reqwidth():
+            self.x = 0
+            self.y = 0
+        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 155:
+            self.x = 0
+            self.y = 0
+
+    def up(self, evt):
+        self.x = 0
+        self.y = -4
+
+    def down(self, evt):
+        self.x = 0
+        self.y = 4
+
+    def left(self, evt):
+        self.y = 0
+        self.x = -4
+
+    def right(self, evt):
+        self.y = 0
+        self.x = 4
+
 game = Game()
 tk = game.tk
 
 canvas = game.canvas
+
+def controller():
+    def detail():
+        detail_window = Toplevel(tk)
+        detail_window.protocol("WM_DELETE_WINDOW", lambda:[detail_window.destroy(), button2.config(state='normal')])
+        detail_window.title("More detailed information")
+        _label1 = Label(detail_window, text="Note that this feature is in BETA(developing) stage.\n(Perhaps there are many bugs in it.)")
+        _label1.pack()
+        _label2 = Label(detail_window, text="When you start a game that you control, your character will be shown on the screen with a red border.")
+        _label2.pack()
+        _label3 = Label(detail_window, text="Sometimes you are killed immediately when game starts. It's because you are unlucky and your starting position is next to your natural enemy.\n(How short their lives are!:cry:)")
+        _label3.pack()
+        _label4 = Label(detail_window, text="I know, it's hard to find your character quickly. We will try to improve this.")
+        _label4.pack()
+        _label5 = Label(detail_window, text="If you die, the game will keep going instead of stopping. And your dead body will 'lie' there(In fact, this is a bug...).")
+        _label5.pack()
+        _label6 = Label(detail_window, text="Note that if you restart the game by pressing Restart buttons, your character won't appear. The only way to start a game of this mode is to press Controller button.")
+        _label6.pack()
+        _label7 = Label(detail_window, text="What's more, you can use your costomized image.")
+        _label7.pack()
+        _label8 = Label(detail_window, text="By the way, if you want to know more about this game, try to visit our gihub website:https://github.com/fanfansmilkyway/Rock-vs-Paper-vs-Scissor")
+        _label8.pack()
+    controller_button.config(state='disabled')
+    window = Toplevel(tk)
+    window.protocol("WM_DELETE_WINDOW", lambda:[window.destroy(), controller_button.config(state='normal')])
+    window.title("Control one competitor by yourself")
+    label1 = Label(window, text="Be bored with watching them fighting on the battlefield? You can join them!")
+    label1.pack()
+    label2 = Label(window, text="You will be randomly chosen to join rocks or papers or scissors.")
+    label2.pack()
+    label3 = Label(window, text="Use 'wasd' to move. Run away from your natural enemy, eat your preys!")
+    label3.pack()
+    label4 = Label(window, text="Press the button to start the game")
+    label4.pack()
+    button1 = Button(window, text="Start a new game that you controll", command=lambda:restart_game(controller=True))
+    button1.pack()
+    button2 = Button(window, text="More detailed information", command=detail)
+    button2.pack()
+
+controller_image = os.path.join(base_dir, './controller.png')
+controller_image = PhotoImage(file=controller_image)
+controller_button = Button(tk, image=controller_image, command=controller)
+controller_button.place(relx=1.0, rely=1.0, x=0, y=0, anchor=SE)
+
 rocks = [Rock(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
 papers = [Paper(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
 scissors = [Scissor(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
@@ -244,28 +405,29 @@ def update_scoreboard(rocks_score:int, papers_score:int, scissors_score:int):
         if current_score == 0:
             final_text = text + ":" + "Game Over"
         scoreboard_name["text"] = final_text
-    try:
-        winner = scoreboards[scores.index(60)]
-    except ValueError:
-        pass
-    else:
-        if scoreboards.index(winner) == 0:
+    number_losers = scores.count(0)
+    losers = [index for index in range(len(scores)) if scores[index]==0]
+    if number_losers == 2:
+        if losers == [1,2]:
             gamedata['game-played'] += 1
             gamedata['rock-win'] += 1
             gamedata_write()
+            winner = rocks_scoreboard
             winner_team = "Rock"
-        if scoreboards.index(winner) == 1:
+        if losers == [0,2]:
             gamedata['game-played'] += 1
             gamedata['paper-win'] += 1
             gamedata_write()
+            winner = papers_scoreboard
             winner_team = "Paper"
-        if scoreboards.index(winner) == 2:
+        if losers == [0,1]:
             gamedata['game-played'] += 1
             gamedata['scissor-win'] += 1
             gamedata_write()
+            winner = scissors_scoreboard
             winner_team = "Scissor"
         current_status = winner["text"]
-        text, previous_score = current_status.split(":")
+        text, _ = current_status.split(":")
         final_text = text + ":" + "Winner!"
         winner["text"] = final_text
         game_over()
@@ -309,22 +471,26 @@ def statistic():
     plt.legend(loc="upper left")
     plt.show()
 
-def restart_game():
-    global rocks, papers, scissors, GAMING, restart_button, statistic_button, rock_number, paper_number, scissor_number, time_start, USE_DEFAULT_IMAGE_, USE_DEFAULT_IMAGE
+def restart_game(controller=False):
+    global rocks, papers, scissors, GAMING, restart_button, statistic_button, rock_number, paper_number, scissor_number, time_start, USE_DEFAULT_IMAGE_, USE_DEFAULT_IMAGE, player
     USE_DEFAULT_IMAGE_ = USE_DEFAULT_IMAGE
-    time_start = time.time()
     try:
         restart_button.destroy()
         statistic_button.destroy()
     except:
         pass
-    rock_number = []
-    paper_number = []
-    scissor_number = []
+    rock_number.clear()
+    paper_number.clear()
+    scissor_number.clear()
     rocks = [Rock(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
     papers = [Paper(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
     scissors = [Scissor(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
+    if controller == True:
+        if player != None:
+            canvas.delete(player.image)
+        player = Player(canvas)
     GAMING = True
+    time_start = time.time()
 
 restart_image = os.path.join(base_dir, './restart.png')
 restart_image = PhotoImage(file=restart_image)
