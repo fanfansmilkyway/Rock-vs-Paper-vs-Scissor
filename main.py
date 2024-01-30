@@ -1,18 +1,25 @@
+# This is Rock vs Paper vs Scissor source code
+# Please read readme.md to learn how to play the game
+# My email address: fanfansmilkyway@gmail.com / fanfansmilkyway@qq.com
+# Github repository: https://github.com/fanfansmilkyway/Rock-vs-Paper-vs-Scissor
+
 # Import modules(built-in)
-from tkinter import *
-import tkinter.messagebox
-import tkinter.filedialog
-import shutil
-import pickle
+from tkinter import * # For GUI
+import tkinter.messagebox # For warning messages
+import tkinter.filedialog # For choosing files
+import shutil # For downloading picture from local
+import pickle # For saving gaming data(.dat)
 import random
-import time
+import time # For sleep
 import os
 
 # Not built-in(Need to install)
-import matplotlib.pyplot as plt
-from PIL import Image as PImage
+import matplotlib.pyplot as plt # For Statistics
+# For pictures resizing and processing(add border)
+from PIL import Image as PImage # PImage for avoiding tkinter.Image module
 from PIL import ImageOps, ImageTk
 
+# Creating a folder for costomized images
 try:
     os.mkdir('costom_image') # Error if folder exists
 except:
@@ -21,27 +28,30 @@ except:
 gamedata = {}
 player = None
 
+# Three useful functions for gamedata processing
 def gamedata_read():
     global gamedata
-    load_file = open('gamedata.dat', 'rb')
+    load_file = open('gamedata.dat', 'rb') # 'rb' means binary read
     gamedata = pickle.load(load_file)
     load_file.close()
     return gamedata
 
 def gamedata_write():
-    save_file = open('gamedata.dat', 'wb')
+    save_file = open('gamedata.dat', 'wb') # 'wb' means binary write
     pickle.dump(gamedata, save_file)
     save_file.close()
 
 def gamedata_delete():
     if tkinter.messagebox.askokcancel("Delete Anyway", "If you do this, your game data will be deleted forever. You can not undo this. Are you sure you want to delete it?"):
         save_file = open('gamedata.dat', 'wb')
+        # Set all to 0 = Delete
         gamedata = {
             'game-played': 0,
             'rock-win': 0,
             'paper-win': 0,
             'scissor-win': 0,
-            'play-time': 0
+            'play-time': 0,
+            'speed': 4
         }
         pickle.dump(gamedata, save_file)
         save_file.close()
@@ -52,13 +62,14 @@ if os.path.exists('gamedata.dat'):
     gamedata_read()
 
 else:
-    save_file = open('gamedata.dat', 'wb+')
+    save_file = open('gamedata.dat', 'wb+') # 'wb+' means binary write and create
     gamedata = {
         'game-played': 0,
         'rock-win': 0,
         'paper-win': 0,
         'scissor-win': 0,
-        'play-time': 0
+        'play-time': 0,
+        'speed': 4
     }
     pickle.dump(gamedata, save_file)
     save_file.close()
@@ -70,9 +81,11 @@ def seconds_to_hms(seconds):
 
 base_dir = os.path.dirname(__file__)
 
+# Global variable for functions 'communicating' with each other
 GAMING = True
 USE_DEFAULT_IMAGE = True
 USE_DEFAULT_IMAGE_ = True
+SPEED = gamedata['speed']
 
 time_start = time.time()
 
@@ -81,7 +94,7 @@ class Game:
     def __init__(self):
         tk = Tk()
         self.tk = tk
-        self.tk.title("Rock vs Paper vs Scissor(BETA3.0)")
+        self.tk.title("Rock vs Paper vs Scissor(BETA3.1)") # Remember to change this line when every update
         self.canvas = Canvas(tk, width=1200, height=850, background='grey')
         self.canvas.pack()
 
@@ -126,7 +139,7 @@ class Rock:
             or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
             or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
             or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
-                papers.append(Paper(game.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                papers.append(Paper(game.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)))
                 rocks.remove(self) # Die
                 del(self)
                 return 0
@@ -169,7 +182,7 @@ class Paper:
                 or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
                 or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
                 or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
-                    scissors.append(Scissor(game.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                    scissors.append(Scissor(game.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)))
                     papers.remove(self)
                     del(self)
                     return 0
@@ -212,14 +225,14 @@ class Scissor:
                 or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
                 or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
                 or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
-                    rocks.append(Rock(game.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                    rocks.append(Rock(game.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)))
                     scissors.remove(self)
                     del(self)
                     return 0
 
-# TODO Make a controlable(by player) competitor
 class Player:
     def __init__(self, canvas):
+        # Random values, random life
         self.x = random.randint(50, canvas.winfo_reqwidth()-200)
         self.y = random.randint(50, canvas.winfo_reqheight()-200)
         self.pos = [self.x, self.y]
@@ -251,9 +264,11 @@ class Player:
         self.canvas.bind_all('<KeyPress-s>', self.down)
         self.canvas.bind_all('<KeyPress-a>', self.left)
         self.canvas.bind_all('<KeyPress-d>', self.right)
+        # Note that self.x, self.y are used twice. One for init position, one for moving
         self.x = 0
         self.y = 0
 
+    # TODO: Don't need to check self.type every time...
     def fight(self):
         if self.type == 'Rock':
             papers_pos = []
@@ -266,7 +281,7 @@ class Player:
                 or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
                 or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
                 or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
-                    papers.append(Paper(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                    papers.append(Paper(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)))
                     rocks.remove(self) # Die
                     del(self)
                     return 0
@@ -280,7 +295,7 @@ class Player:
                     or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
                     or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
                     or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
-                        scissors.append(Scissor(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                        scissors.append(Scissor(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)))
                         papers.remove(self)
                         del(self)
                         return 0
@@ -294,7 +309,7 @@ class Player:
                     or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y <= self.pos[1]+55 \
                     or self.pos[0] <= pos_x <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55 \
                     or self.pos[0] <= pos_x+55 <= self.pos[0]+55 and self.pos[1] <= pos_y+55 <= self.pos[1]+55:
-                        rocks.append(Rock(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)))
+                        rocks.append(Rock(self.canvas, self.pos[0], self.pos[1], round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)))
                         scissors.remove(self)
                         del(self)
                         return 0 
@@ -317,19 +332,19 @@ class Player:
 
     def up(self, evt):
         self.x = 0
-        self.y = -4
+        self.y = -SPEED
 
     def down(self, evt):
         self.x = 0
-        self.y = 4
+        self.y = SPEED
 
     def left(self, evt):
         self.y = 0
-        self.x = -4
+        self.x = -SPEED
 
     def right(self, evt):
         self.y = 0
-        self.x = 4
+        self.x = SPEED
 
 game = Game()
 tk = game.tk
@@ -379,9 +394,9 @@ controller_image = PhotoImage(file=controller_image)
 controller_button = Button(tk, image=controller_image, command=controller)
 controller_button.place(relx=1.0, rely=1.0, x=0, y=0, anchor=SE)
 
-rocks = [Rock(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
-papers = [Paper(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
-scissors = [Scissor(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
+rocks = [Rock(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, SPEED), 2), round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)) for i in range(20)]
+papers = [Paper(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, SPEED), 2), round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)) for i in range(20)]
+scissors = [Scissor(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)) for i in range(20)]
 
 rocks_scoreboard = Label(tk, text="Rock:20")
 rocks_scoreboard.place(x=0, y=0)
@@ -464,7 +479,7 @@ def statistic():
     labels = ['Rock', 'Paper', 'Scissor']
     plt.figure()
     plt.stackplot(time_list, rock_number, paper_number, scissor_number, baseline='zero', labels=labels, colors=['red','green','blue'])
-    plt.ylim(0, 60)
+    plt.ylim(bottom=0)
     plt.title("Rock vs Paper vs Scissor({0} Wins)\nRed:Rock, Green:Paper, Blue:Scissor".format(winner_team))
     plt.xlabel("Time(s)")
     plt.ylabel("Survival Number")
@@ -482,12 +497,12 @@ def restart_game(controller=False):
     rock_number.clear()
     paper_number.clear()
     scissor_number.clear()
-    rocks = [Rock(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
-    papers = [Paper(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
-    scissors = [Scissor(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, 4), 2), round(random.uniform(-4, 4), 2), round(random.uniform(-4, 4), 2)) for i in range(20)]
+    rocks = [Rock(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)) for i in range(20)]
+    papers = [Paper(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)) for i in range(20)]
+    scissors = [Scissor(canvas, random.randint(50,canvas.winfo_reqwidth()-50), random.randint(50, canvas.winfo_reqheight()-50), round(random.uniform(0.5, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2), round(random.uniform(-SPEED, SPEED), 2)) for i in range(20)]
+    if player != None:
+        canvas.delete(player.image)
     if controller == True:
-        if player != None:
-            canvas.delete(player.image)
         player = Player(canvas)
     GAMING = True
     time_start = time.time()
@@ -528,7 +543,7 @@ def history():
     delete_data_button.pack()
 
 def settings():
-    global USE_DEFAULT_IMAGE
+    global USE_DEFAULT_IMAGE, SPEED
     def rock_change_file():
         rock_filename = tkinter.filedialog.askopenfilename()
         rock_dst_filename = "costom_image/rock.png"
@@ -555,7 +570,22 @@ def settings():
         USE_DEFAULT_IMAGE = True
     def use_costom_image():
         global USE_DEFAULT_IMAGE
-        USE_DEFAULT_IMAGE = False
+        if os.path.exists("costom_image/rock.png") and os.path.exists("costom_image/paper.png") and os.path.exists("costom_image/scissor.png"):
+            USE_DEFAULT_IMAGE = False
+        else:
+            mylist = [os.path.exists("costom_image/rock.png"), os.path.exists("costom_image/paper.png"), os.path.exists("costom_image/scissor.png")]
+            type_list = ['rock','paper','scissor']
+            missing_index = [index for index in range(len(mylist)) if mylist[index]==0]
+            missing = ''
+            for i in missing_index:
+                missing = missing + ', ' + type_list[i]
+            tkinter.messagebox.showerror(title='Error', message="You cannot use costomized images now. Because the following images are missing:\n{0}".format(missing))
+    def change_speed():
+        global SPEED
+        SPEED = slider.get()
+        gamedata['speed'] = SPEED
+        gamedata_write()
+
     settings_button.config(state="disabled")
     settings_window = Toplevel(tk)
     settings_window.title("Settings")
@@ -570,7 +600,7 @@ def settings():
     button3.pack()
     button4 = Button(settings_window, text="Use Default Images", command=use_default_image)
     button4.pack()
-    button5 = Button(settings_window, text="Use Costom Images", command=use_costom_image)
+    button5 = Button(settings_window, text="Use Costomized Images", command=use_costom_image)
     button5.pack()
     label2_0 = Label(settings_window, text="Preview(Rock, Paper, Scissor)")
     label2_0.pack()
@@ -581,7 +611,7 @@ def settings():
         label2_image = os.path.join(base_dir, 'costom_image/rock.png')
     label2_image = PhotoImage(file=label2_image) 
     label2 = Label(settings_window, image=label2_image)
-    label2.pack(side=LEFT)
+    label2.pack()
     label2.image = label2_image
 
     if USE_DEFAULT_IMAGE == True:
@@ -590,7 +620,7 @@ def settings():
         label3_image = os.path.join(base_dir, 'costom_image/paper.png')
     label3_image = PhotoImage(file=label3_image) 
     label3 = Label(settings_window, image=label3_image)
-    label3.pack(side=LEFT)
+    label3.pack()
     label3.image = label3_image
 
     if USE_DEFAULT_IMAGE == True:
@@ -599,8 +629,18 @@ def settings():
         label4_image = os.path.join(base_dir, 'costom_image/scissor.png')
     label4_image = PhotoImage(file=label4_image) 
     label4 = Label(settings_window, image=label4_image)
-    label4.pack(side=LEFT)
+    label4.pack()
     label4.image = label4_image
+
+    label5 = Label(settings_window, text="\n\n\nSet average speed:")
+    label5.pack()
+    label6 = Label(settings_window, text="Because we use different computer, \nso sometimes you need to change objects' average speed to prevent them moving too fast.\nOr you want to a faster game\n(Default 4)")
+    label6.pack()
+    slider = Scale(settings_window, from_=1, to=10, resolution=0.5, orient=HORIZONTAL, length=250)
+    slider.set(SPEED)
+    slider.pack()
+    button6 = Button(settings_window, text="Save and apply", command=change_speed)
+    button6.pack()
 
 # Bottom Left corner
 bl_frame = Frame(tk)
@@ -621,7 +661,7 @@ rock_number = []
 paper_number = []
 scissor_number = []
 
-# Mainloop
+    # Mainloop
 while True:
     if GAMING == True:
         for rock in rocks:
@@ -633,10 +673,11 @@ while True:
         for scissor in scissors:
             scissor.draw()
             scissor.fight()
-        # Update Scoreboards
+            # Update Scoreboards
         rock_number.append(len(rocks))
         paper_number.append(len(papers))
         scissor_number.append(len(scissors))
         update_scoreboard(len(rocks), len(papers), len(scissors))
     tk.update_idletasks()
     tk.update()
+    time.sleep(0.01)

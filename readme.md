@@ -5,17 +5,17 @@ Instead, we put rocks, papers, scissors on the canvas and let them fight with ea
 
 Unfortunately, I am not good at AI technology so actually they just randomly move in straight line, and bounce if they hit the wall. When they "fight"(it means one touches another), for example, if a rock meets a paper, the rock dies, but paper are still alive, and a new paper will be born. Very simple, right?  
 
-This game is written by Python using tkinter, matplotlib modules. Notice that the following tutorial is for BETA3.0!
+This game is written by Python using tkinter, matplotlib modules. Notice that the following tutorial is for BETA3.1!
 
 ## Requirements
 Before you start the game, check if you have already installed these python libraries:
 ```
-    matplotlib
+    matplotlib==3.5.2
     Pillow
 ```
 If not, use the following commands to install them:
 ```
-    pip install matplotlib
+    pip install matplotlib==3.5.2
     pip install Pillow
 ```
 
@@ -38,16 +38,17 @@ At the bottom-left corner, there are two 'advanced' buttons: "Gaming History"(a 
 If you press it, a new window will appear. It shows your gaming History, including 'games played','Times of rock wins'...... You can also delete your gaming history. Please think carefully before you do this, because the data will be deleted forever, you will never find it back.
 
 ### Settings(_Advanced_)
-(It should be Setting not Settings, for you only can set one thing).  
 This is interesting especially for people who are bored with the default rock,paper,scissor images: set customized image.
 
 If you press the "Setting" button, a (again) new window with buttons will appear. Next press 'Rock image file' button, choose your costom rock image(support most picture extension such as .png .jpg .jpeg .webp ...). Then set the other two in the same way. Finally press 'Use costomized images', start a new game. Well done! Now your favourite animated characters are fighting!!
 
 It is better to upload square images, because your images will be resized to 55px*55px by the program. You don't want to your favourite character become very fat or very thin, right?
 
-### Game controlled by you(_Advaced_)(_BETA_)
+You can also set average speed in the settings. Because we use different computers with different screens and CPUs, their processing speed are different as well. If you find that objects move too fast or too slow, try to adjust average speed! Some players want to experience more exciting battle, set average speed faster!
+
+### Game 'controlled' by you(_Advaced_)(_BETA_)
 This new feature is added in version _BETA3.0_. And it is in developing stage so perhaps there are many bugs in it.
 
-If you press the "Controller" button at the bottom-right corner, a new window will be created. Press "Start a new game that you control" button to start a game in this mode. In this mode, you will join one of the teams(Rock or Paper or Scissor). Use '_wasd_' to control your character. Eat your preys and run away from your natural enemy. Costomized images can also be used in this mode(Ready to become your favourite animated character?).
+If you press the "Controller" button at the bottom-right corner, a new window will be created. Press "Start a new game that you control" button to start a game in this mode. In this mode, you will join one of the teams(Rock or Paper or Scissor). Use '_wasd_' to control your character. Eat your preys and run away from your natural enemy. Average speed(see _**Settings**_) affects your speed. Costomized images can also be used in this mode(Ready to become your favourite animated character?).
 
 I hope this tutorial will help you!

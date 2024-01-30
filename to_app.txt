@@ -1,3 +1,6 @@
+I need your help!
+If you are good at PyInstaller, please help me pack my main.py into .app file
+It seems that the following command doesn't work.
+
 Python to app:
-python3 -m PyInstaller --name 'Rock vs Paper vs Scissor' --icon 'rock-paper-scissors.ico' --windowed --noconfirm --add-data='./rock.png:.' --add-data='./paper.png:.' --add-data='./scissor.png:.' --add-data='./restart.png:.' --add-data='./settings.png:.' --add-data='./history.png:.' --add-data='./controller:.' --noconsole main.py
-(Better to set virtual environment to reduce the size of app)
+python3 -m PyInstaller --name 'Rock vs Paper vs Scissor' --icon 'rock-paper-scissors.ico' --windowed --noconfirm --add-data='./rock.png:.' --add-data='./paper.png:.' --add-data='./scissor.png:.' --add-data='./restart.png:.' --add-data='./settings.png:.' --add-data='./history.png:.' --add-data='./controller.png:.' --noconsole main.py
