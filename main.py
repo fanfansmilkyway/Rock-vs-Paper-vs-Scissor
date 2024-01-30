@@ -94,8 +94,8 @@ class Game:
     def __init__(self):
         tk = Tk()
         self.tk = tk
-        self.tk.title("Rock vs Paper vs Scissor(BETA3.1)") # Remember to change this line when every update
-        self.canvas = Canvas(tk, width=1200, height=850, background='grey')
+        self.tk.title("Rock vs Paper vs Scissor(BETA3.2)") # Remember to change this line when every update
+        self.canvas = Canvas(tk, width=1200, height=750, background='grey')
         self.canvas.pack()
 
 # Initialize three 'competitors'
@@ -125,7 +125,7 @@ class Rock:
             self.y = self.speed
         if self.pos[0] + 55 >= self.canvas.winfo_reqwidth():
             self.x = -self.speed
-        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 155:
+        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 55:
             self.y = -self.speed
 
     def fight(self):
@@ -169,7 +169,7 @@ class Paper:
             self.y = self.speed
         if self.pos[0] + 55 >= self.canvas.winfo_reqwidth():
             self.x = -self.speed
-        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 155:
+        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 55:
             self.y = -self.speed
 
     def fight(self):
@@ -212,7 +212,7 @@ class Scissor:
             self.y = self.speed
         if self.pos[0] + 55 >= self.canvas.winfo_reqwidth():
             self.x = -self.speed
-        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 155:
+        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 55:
             self.y = -self.speed
 
     def fight(self):
@@ -326,7 +326,7 @@ class Player:
         if self.pos[0] + 55 >= self.canvas.winfo_reqwidth():
             self.x = 0
             self.y = 0
-        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 155:
+        if self.pos[1] + 55 >= self.canvas.winfo_reqheight() - 55:
             self.x = 0
             self.y = 0
 
@@ -488,6 +488,18 @@ def statistic():
 
 def restart_game(controller=False):
     global rocks, papers, scissors, GAMING, restart_button, statistic_button, rock_number, paper_number, scissor_number, time_start, USE_DEFAULT_IMAGE_, USE_DEFAULT_IMAGE, player
+    def countdown(count):
+        text = "Preparation Time\nGame starts in {0} seconds"
+        label['text'] = text.format(count)
+        tk.update()
+        while count > 0:
+            time.sleep(1)
+            count -= 1
+            label['text'] = text.format(count)
+            tk.update()
+        time.sleep(1)
+        label.destroy()
+
     USE_DEFAULT_IMAGE_ = USE_DEFAULT_IMAGE
     try:
         restart_button.destroy()
@@ -503,7 +515,12 @@ def restart_game(controller=False):
     if player != None:
         canvas.delete(player.image)
     if controller == True:
+        label = Label(tk)
+        label.place(relx=0.4,y=0)
         player = Player(canvas)
+        tk.update()
+        countdown(3)
+        
     GAMING = True
     time_start = time.time()
 
