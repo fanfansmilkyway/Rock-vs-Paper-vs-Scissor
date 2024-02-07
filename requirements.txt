@@ -1,3 +1,2 @@
 matplotlib==3.5.2
-pyinstaller
 Pillow
